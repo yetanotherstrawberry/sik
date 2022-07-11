@@ -4,7 +4,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Kółko i krzyżyk z wysyłaniem plików i wiadomości [Projekt na DISK]" Height="450" Width="800" x:Name="Okno">
+        DataContext="{Binding RelativeSource={RelativeSource Self}}"
+        Title="Kółko i krzyżyk z wysyłaniem plików i wiadomości [Projekt na DISK]"
+        Height="450" Width="800"
+        x:Name="Okno">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
@@ -31,7 +34,7 @@
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                     <Label Content="Adres:" />
                     <StackPanel Orientation="Horizontal" x:Name="PolaczenieGUI">
-                        <TextBox Text="127.0.0.1:3060" x:Name="Adres" HorizontalAlignment="Center" Height="23" VerticalAlignment="Top" Width="200" />
+                        <TextBox Text="127.0.0.1:1337" x:Name="Adres" HorizontalAlignment="Center" Height="23" VerticalAlignment="Top" Width="200" />
                         <Button Height="23" Content="Połącz" Width="100" Margin="5,0,0,0" Click="Polacz" />
                     </StackPanel>
                     <Button Height="23" Content="Rozłącz" Width="100" Margin="0,5,0,0" Click="Rozlacz" x:Name="OdlaczGuzik" IsEnabled="False" />

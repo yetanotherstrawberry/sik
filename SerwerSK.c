@@ -14,31 +14,31 @@
 #define ROZMIAR_BUFORA 1024
 
 char *odczytajBajty(FILE *plik, int ilosc_bajtow){
-	
-	char *bajty = malloc(sizeof(char) * ilosc_bajtow);
-	
-	if(plik == NULL){
+    
+    char *bajty = malloc(sizeof(char) * ilosc_bajtow);
+    
+    if(plik == NULL){
         perror(strerror(errno));
         printf("odczytajBajty(): (FILE *) == NULL\n");
-		if(bajty != NULL) free(bajty);
+        if(bajty != NULL) free(bajty);
         return NULL;
     }
-	
-	if(bajty == NULL){
+    
+    if(bajty == NULL){
         perror(strerror(errno));
         printf("odczytajBajty(): (char *) == NULL\n");
         return NULL;
     }
-	
-	if(fread(bajty, sizeof(char), ilosc_bajtow, plik) != ilosc_bajtow){
+    
+    if(fread(bajty, sizeof(char), ilosc_bajtow, plik) != ilosc_bajtow){
         perror(strerror(errno));
         printf("odczytajBajty(): fread() != ilosc_bajtow\n");
-		if(bajty != NULL) free(bajty);
+        if(bajty != NULL) free(bajty);
         return NULL;
     }
-	
-	return bajty;
-	
+    
+    return bajty;
+    
 }
 
 void zapiszBajty(char *bajty, FILE *plik, int ilosc_bajtow){
@@ -201,47 +201,47 @@ int nasluchuj(int gniazdo){
 }
 
 void graczObieraPlik(int gniazdkoPliku){
-	
-	char *nazwa = odbierzString(gniazdkoPliku);
-	FILE *plik = fopen(nazwa, "r");
-	int wyslano = 0, rozmiar, temp;
+    
+    char *nazwa = odbierzString(gniazdkoPliku);
+    FILE *plik = fopen(nazwa, "r");
+    int wyslano = 0, rozmiar, temp;
     char *bufor;
-	struct stat info;
-	
-	if(plik == NULL){
-		perror(strerror(errno));
-		if(bufor != NULL) free(bufor);
-		printf("graczOtwieraPlik(): (FILE *) == NULL\n");
-		send(gniazdkoPliku, &wyslano, sizeof(int), 0);
-		return;
-	}
+    struct stat info;
+    
+    if(plik == NULL){
+        perror(strerror(errno));
+        if(bufor != NULL) free(bufor);
+        printf("graczOtwieraPlik(): (FILE *) == NULL\n");
+        send(gniazdkoPliku, &wyslano, sizeof(int), 0);
+        return;
+    }
 
-	if(stat(nazwa, &info) <= -1){
-		perror(strerror(errno));
-		if(bufor != NULL) free(bufor);
-		printf("graczOtwieraPlik(): stat() <= -1\n");
-		return;
-	}
-	rozmiar = (int)info.st_size;
-	temp = htonl(rozmiar);
-	send(gniazdkoPliku, &temp, sizeof(int), 0);
+    if(stat(nazwa, &info) <= -1){
+        perror(strerror(errno));
+        if(bufor != NULL) free(bufor);
+        printf("graczOtwieraPlik(): stat() <= -1\n");
+        return;
+    }
+    rozmiar = (int)info.st_size;
+    temp = htonl(rozmiar);
+    send(gniazdkoPliku, &temp, sizeof(int), 0);
 
     while(wyslano < rozmiar){
 
-		temp = rozmiar - wyslano;
-		if(temp > ROZMIAR_BUFORA) temp = ROZMIAR_BUFORA;
+        temp = rozmiar - wyslano;
+        if(temp > ROZMIAR_BUFORA) temp = ROZMIAR_BUFORA;
         bufor = odczytajBajty(plik, temp);
-		wyslijBajty(bufor, gniazdkoPliku, temp);
-		wyslano += temp;
+        wyslijBajty(bufor, gniazdkoPliku, temp);
+        wyslano += temp;
 
     }
-	
-	fclose(plik);
+    
+    fclose(plik);
 
     printf("Wyslano plik: %s; o wielkosci: %u\n", nazwa, rozmiar);
-	
-	free(bufor);
-	
+    
+    free(bufor);
+    
 }
 
 void graczWysylaPlik(int gniazdko){
@@ -250,31 +250,31 @@ void graczWysylaPlik(int gniazdko){
     uint32_t rozmiar = pobierzRozmiar(gniazdko);
     int pobrano = 0, temp, do_pobrania_temp;
     char *bufor = malloc(sizeof(char) * ROZMIAR_BUFORA);
-	FILE *plik = fopen(nazwa, "w");
+    FILE *plik = fopen(nazwa, "w");
 
-	if(bufor == NULL){
-		perror(strerror(errno));
-		printf("graczWysylaPlik(): (char *) == NULL\n");
-		send(gniazdko, &pobrano, sizeof(int), 0);
-		return;
-	}
+    if(bufor == NULL){
+        perror(strerror(errno));
+        printf("graczWysylaPlik(): (char *) == NULL\n");
+        send(gniazdko, &pobrano, sizeof(int), 0);
+        return;
+    }
 
     while(pobrano < rozmiar){
 
         if(rozmiar > ROZMIAR_BUFORA) do_pobrania_temp = ROZMIAR_BUFORA;
         else do_pobrania_temp = rozmiar;
         temp = recv(gniazdko, bufor, sizeof(char) * do_pobrania_temp, 0);
-		zapiszBajty(bufor, plik, temp);
-		do_pobrania_temp -= temp;
-		pobrano += temp;
+        zapiszBajty(bufor, plik, temp);
+        do_pobrania_temp -= temp;
+        pobrano += temp;
 
     }
 
-	fclose(plik);
+    fclose(plik);
 
     printf("Odebrano plik: %s; o wielkosci: %u\n", nazwa, rozmiar);
-	
-	free(bufor);
+    
+    free(bufor);
 
 }
 
@@ -388,31 +388,31 @@ void poczekalnia(int gniazdo, int portDoPlikow){
                         close(gniazdkoX);
                         gniazdkoX = -1;
                     }else if(ret == 100 || ret == 101){
-						gniazdoPliku = nasluchuj(utworzSocket(portDoPlikow));
-						temp = fork();
-						if(temp == 0){
-							wyczysc = 0;
-							portDoPlikow = htonl(portDoPlikow);
-							send(gniazdkoX, &portDoPlikow, sizeof(int), 0);
-							if(gniazdo > 0) close(gniazdo);
-							if(gniazdkoX > 0) close(gniazdkoX);
-							if(gniazdkoY > 0) close(gniazdkoY);
-							free(graczX);
-							free(graczY);
-							free(wiadomosciX);
-							free(wiadomosciY);
-							free(szachownica);
-							gniazdkoPliku = accept(gniazdoPliku, (struct sockaddr *)graczX, &dlugoscAdresuKlientaX);
-							if(ret == 100) graczWysylaPlik(gniazdkoPliku);
-							else if(ret == 101) graczObieraPlik(gniazdkoPliku);
-							close(gniazdoPliku);
-							break;
-						}else if(temp > 0){
-							portDoPlikow++;
-							close(gniazdoPliku);
-						}else{
-							printf("poczekalnia(): fork() < 0\n");
-						}
+                        gniazdoPliku = nasluchuj(utworzSocket(portDoPlikow));
+                        temp = fork();
+                        if(temp == 0){
+                            wyczysc = 0;
+                            portDoPlikow = htonl(portDoPlikow);
+                            send(gniazdkoX, &portDoPlikow, sizeof(int), 0);
+                            if(gniazdo > 0) close(gniazdo);
+                            if(gniazdkoX > 0) close(gniazdkoX);
+                            if(gniazdkoY > 0) close(gniazdkoY);
+                            free(graczX);
+                            free(graczY);
+                            free(wiadomosciX);
+                            free(wiadomosciY);
+                            free(szachownica);
+                            gniazdkoPliku = accept(gniazdoPliku, (struct sockaddr *)graczX, &dlugoscAdresuKlientaX);
+                            if(ret == 100) graczWysylaPlik(gniazdkoPliku);
+                            else if(ret == 101) graczObieraPlik(gniazdkoPliku);
+                            close(gniazdoPliku);
+                            break;
+                        }else if(temp > 0){
+                            portDoPlikow++;
+                            close(gniazdoPliku);
+                        }else{
+                            printf("poczekalnia(): fork() < 0\n");
+                        }
                     }
                 }
                 else if(FD_ISSET(gniazdkoY, &zbior_socketow)){
@@ -422,31 +422,31 @@ void poczekalnia(int gniazdo, int portDoPlikow){
                         close(gniazdkoY);
                         gniazdkoY = -1;
                     }else if(ret == 100 || ret == 101){
-						gniazdoPliku = nasluchuj(utworzSocket(portDoPlikow));
-						temp = fork();
-						if(temp == 0){
-							wyczysc = 0;
-							portDoPlikow = htonl(portDoPlikow);
-							send(gniazdkoY, &portDoPlikow, sizeof(int), 0);
-							if(gniazdo > 0) close(gniazdo);
-							if(gniazdkoX > 0) close(gniazdkoX);
-							if(gniazdkoY > 0) close(gniazdkoY);
-							free(graczX);
-							free(graczY);
-							free(wiadomosciX);
-							free(wiadomosciY);
-							free(szachownica);
-							gniazdkoPliku = accept(gniazdoPliku, (struct sockaddr *)graczY, &dlugoscAdresuKlientaY);
-							if(ret == 100) graczWysylaPlik(gniazdkoPliku);
-							else if(ret == 101) graczObieraPlik(gniazdkoPliku);
-							close(gniazdoPliku);
-							break;
-						}else if(temp > 0){
-							portDoPlikow++;
-							close(gniazdoPliku);
-						}else{
-							printf("poczekalnia(): fork() < 0\n");
-						}
+                        gniazdoPliku = nasluchuj(utworzSocket(portDoPlikow));
+                        temp = fork();
+                        if(temp == 0){
+                            wyczysc = 0;
+                            portDoPlikow = htonl(portDoPlikow);
+                            send(gniazdkoY, &portDoPlikow, sizeof(int), 0);
+                            if(gniazdo > 0) close(gniazdo);
+                            if(gniazdkoX > 0) close(gniazdkoX);
+                            if(gniazdkoY > 0) close(gniazdkoY);
+                            free(graczX);
+                            free(graczY);
+                            free(wiadomosciX);
+                            free(wiadomosciY);
+                            free(szachownica);
+                            gniazdkoPliku = accept(gniazdoPliku, (struct sockaddr *)graczY, &dlugoscAdresuKlientaY);
+                            if(ret == 100) graczWysylaPlik(gniazdkoPliku);
+                            else if(ret == 101) graczObieraPlik(gniazdkoPliku);
+                            close(gniazdoPliku);
+                            break;
+                        }else if(temp > 0){
+                            portDoPlikow++;
+                            close(gniazdoPliku);
+                        }else{
+                            printf("poczekalnia(): fork() < 0\n");
+                        }
                     }
                 }
                 else{
@@ -463,18 +463,18 @@ void poczekalnia(int gniazdo, int portDoPlikow){
         maxgniazdo = 0;
 
     }
-	
-	if(wyczysc == 1){
-		free(graczX);
-		free(graczY);
-		free(wiadomosciX);
-		free(wiadomosciY);
-		free(szachownica);
-		if(gniazdo > 0) close(gniazdo);
-		if(gniazdkoX > 0) close(gniazdkoX);
-		if(gniazdkoY > 0) close(gniazdkoY);
-	}
-	
+    
+    if(wyczysc == 1){
+        free(graczX);
+        free(graczY);
+        free(wiadomosciX);
+        free(wiadomosciY);
+        free(szachownica);
+        if(gniazdo > 0) close(gniazdo);
+        if(gniazdkoX > 0) close(gniazdkoX);
+        if(gniazdkoY > 0) close(gniazdkoY);
+    }
+    
 }
 
 int nowaGra(int port_poczekalni){
@@ -547,10 +547,10 @@ int main(int argc, char **argv){
 
     int port = 1337, status, gniazdko, gniazdo = nasluchuj(utworzSocket(port)), port_poczekalni = port+1;
 
-	if(argc == 2) port = atoi(argv[1]);
-	else if(argc > 2){
-		printf("main(): argc > 2\n");
-	}
+    if(argc == 2) port = atoi(argv[1]);
+    else if(argc > 2){
+        printf("main(): argc > 2\n");
+    }
 
     do{
         gniazdko = czekajNaKlientaSerwera(gniazdo);
